@@ -1,10 +1,13 @@
 import { Outlet } from "react-router";
+import Navbar from "../components/Navbar";
 
 export default function MainLayout() {
   return (
     <div>
-      Main Layout
-      <Outlet />
+      <Navbar />
+      <div className="mt-14 container mx-auto p-4">
+        <Outlet />
+      </div>
     </div>
   );
 }

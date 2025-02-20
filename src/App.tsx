@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import "./assets/styles/app.css";
 import Categories from "./pages/Categories";
 import MainLayout from "./layouts/MainLayout";
+import Home from "./pages/home";
 
 const queryClient = new QueryClient();
 
@@ -12,7 +13,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Categories />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/" element={<Home />} />
           </Route>
         </Routes>
       </BrowserRouter>
