@@ -52,3 +52,11 @@ yarn dev
 ```
 
 The app will be running at http://localhost:5173
+
+## Screen Shots
+
+<p align="center">
+<img src="screenshots/categories-page.png" alt="categories-page" width="50%" >
+<img src="screenshots/items-list-page.png" alt="items-list-page" width="50%" >
+<img src="screenshots/item-popup.png" alt="item-popup" >
+</p>
