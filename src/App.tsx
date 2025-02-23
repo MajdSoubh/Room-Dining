@@ -1,23 +1,34 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router";
-import "./assets/styles/app.css";
+import { CartProvider } from "./context/CartContext";
+import { ToastProvider } from "./context/ToastContext";
 import Categories from "./pages/Categories";
 import MainLayout from "./layouts/MainLayout";
-import Home from "./pages/home";
+import ItemsList from "./pages/ItemsList";
+import Home from "./pages/Home";
+import "./assets/styles/app.css";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<MainLayout />}>
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/" element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <ToastProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route
+                  path="/categories/:category-id"
+                  element={<ItemsList />}
+                />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/" element={<Home />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
