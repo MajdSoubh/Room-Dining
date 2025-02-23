@@ -25,7 +25,7 @@ export const Toast = ({ message, type, period, onClose }: ToastProps) => {
   const typeStyles = {
     success: "bg-primary border-primary",
     error: "bg-red-500 border-red-600",
-    info: "bg-primary border-blue-600",
+    info: "bg-primary border-primary",
     warning: "bg-yellow-500 border-yellow-600",
   };
 
@@ -36,7 +36,7 @@ export const Toast = ({ message, type, period, onClose }: ToastProps) => {
     error: <X className="bg-red-600 rounded-full p-[3px] stroke-white " />,
     info: (
       <svg
-        className="bg-blue-600 rounded-full w-6 h-6 p-[3px]"
+        className="bg-primary rounded-full w-6 h-6 p-[3px]"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
       >
