@@ -3,15 +3,17 @@ import CategoryCard from "../components/CategoryCard";
 import SearchBar from "../components/SearchBar";
 import { fetchCategories } from "../services/categoriesService";
 import { Info } from "../components/Info";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { BottomNav } from "../components/BottomNav";
 import { Category } from "../types/category";
 import { debounce } from "../utils/debounce";
 
+// Memoized components
+const MemoizedCategoryCard = memo(CategoryCard);
+
 export default function Categories() {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
 
   const {
     data: categories,
@@ -30,14 +32,12 @@ export default function Categories() {
     []
   );
 
-  useEffect(() => {
-    if (!isLoading && categories) {
-      const filtered = categories.filter((cat: Category) =>
-        cat.name.toLowerCase().includes(searchQuery)
-      );
-      setFilteredCategories(filtered);
-    }
-  }, [searchQuery, categories, isLoading]);
+  const filteredCategories = useMemo(() => {
+    if (!categories) return [];
+    return categories.filter((cat) =>
+      cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [categories, searchQuery]);
 
   return (
     <div className="mx-auto pt-4  justify-end flex flex-col gap-3 w-full h-full">
@@ -87,7 +87,7 @@ export default function Categories() {
         {!isLoading && !isError && filteredCategories.length > 0 && (
           <div className="grid gap-4 grid-cols-2 w-full">
             {filteredCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+              <MemoizedCategoryCard key={category.id} category={category} />
             ))}
           </div>
         )}

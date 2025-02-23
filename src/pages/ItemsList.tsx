@@ -3,7 +3,7 @@ import ItemCard from "../components/ItemCard";
 import SearchBar from "../components/SearchBar";
 import { fetchCategoryItems } from "../services/categoriesService";
 import { Info } from "../components/Info";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { CartSummary } from "../components/CartSummary";
 import { ScrollContainer } from "../components/ScrollContainer";
@@ -11,9 +11,11 @@ import { ItemDetailModal } from "../components/modals/ItemDetailModal";
 import { Item } from "../types/item";
 import { debounce } from "../utils/debounce";
 
+// Memoize components
+const MemoizedItemCard = memo(ItemCard);
+
 export default function ItemsList() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const { "category-id": categoryId } = useParams<{ "category-id": string }>();
 
@@ -33,26 +35,21 @@ export default function ItemsList() {
       }, 300),
     []
   );
-  useEffect(() => {
-    if (data?.items.data) {
-      const filtered = data.items.data
-        .filter((item) =>
-          item.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-        .map((itemResponse) => ({
-          ...itemResponse,
-          currency: data.currency,
-          restaurant: {
-            uuid: data.restaurant.uuid,
-          },
-        }));
+  const [filteredItems, itemsData] = useMemo(() => {
+    const baseItems = data?.items.data || [];
+    const filtered = baseItems
+      .filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((item) => ({
+        ...item,
+        currency: data?.currency || "USD",
+        restaurant: { uuid: data?.restaurant.uuid || "" },
+      }));
 
-      setFilteredItems(filtered);
-    }
-  }, [searchQuery, data]);
+    return [filtered, baseItems];
+  }, [data, searchQuery]);
 
-  // Derived values for empty state
-  const itemsData = data?.items.data || [];
   const isEmptyState = !isLoading && !isError && filteredItems.length === 0;
 
   return (
@@ -101,7 +98,7 @@ export default function ItemsList() {
         {!isLoading && !isError && filteredItems.length > 0 && (
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 w-full">
             {filteredItems.map((item) => (
-              <ItemCard
+              <MemoizedItemCard
                 key={item.id}
                 item={{
                   ...item,
