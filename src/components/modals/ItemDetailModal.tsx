@@ -1,38 +1,132 @@
-// components/ItemDetailModal.tsx
 import { CircleX, Plus, Minus } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { ScrollContainer } from "../ScrollContainer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "../../context/ToastContext";
+import { FC } from "react";
+import { Item } from "../../types/item";
+import { ExtraOptions } from "../ExtraOption";
 
-export const ItemDetailModal = ({ item, onClose }) => {
-  console.log(item);
-  const { insertOrUpdateItem, getItemQuantity } = useCart();
-  const [orderDetails, setOrderDetails] = useState({ quantity: 0 });
+interface ExtraOption {
+  id: number;
+  name: string;
+  option_has_price: boolean;
+  price?: number;
+  currency?: string;
+}
+
+interface ExtraSection {
+  extra_id: number;
+  name: string;
+  is_active: boolean;
+  is_required: boolean;
+  extra_type_name: "radio" | "checkbox";
+  option: ExtraOption[];
+}
+
+interface OrderDetails {
+  quantity: number;
+  extras: Array<{
+    extra_id: number;
+    option_id: number;
+  }>;
+}
+
+interface ItemDetailModalProps {
+  item: (Item & { extrasWithOptions?: ExtraSection[] }) | null;
+  onClose: () => void;
+}
+
+export const ItemDetailModal: FC<ItemDetailModalProps> = ({
+  item,
+  onClose,
+}) => {
+  const { insertOrUpdateItem } = useCart();
+  const [orderDetails, setOrderDetails] = useState<OrderDetails>({
+    quantity: 0,
+    extras: [],
+  });
   const { addToast } = useToast();
 
-  const handleIncreaseQuantity = () => {
-    setOrderDetails((prevOrder) => ({
-      ...prevOrder,
-      quantity: prevOrder.quantity + 1,
+  useEffect(() => {
+    return () => {
+      setOrderDetails({ quantity: 0, extras: [] });
+    };
+  }, [item]);
+  const updateQuantity = (
+    operation: "increase" | "decrease" | "set",
+    value?: number
+  ) => {
+    setOrderDetails((prev) => ({
+      ...prev,
+      quantity: calculateNewQuantity(prev.quantity, operation, value),
     }));
   };
-  const handleDecreaseQuantity = () => {
-    if (orderDetails.quantity > 0) {
-      setOrderDetails((prevOrder) => ({
-        ...prevOrder,
-        quantity: prevOrder.quantity - 1,
-      }));
+
+  const calculateNewQuantity = (
+    current: number,
+    operation: "increase" | "decrease" | "set",
+    value?: number
+  ) => {
+    switch (operation) {
+      case "increase":
+        return current + 1;
+      case "decrease":
+        return Math.max(0, current - 1);
+      case "set":
+        return Math.max(0, value || 0);
+      default:
+        return current;
     }
   };
 
-  const getTotalPrice = () => {
-    let total = orderDetails.quantity * item.price;
-    return total;
+  const handleExtraSelection = (
+    extraId: number,
+    optionId: number,
+    type: "radio" | "checkbox"
+  ) => {
+    setOrderDetails((prev) => {
+      let newExtras = [...prev.extras];
+
+      if (type === "radio") {
+        // Remove existing selections and insert new if radio buttion
+        newExtras = newExtras.filter((e) => e.extra_id !== extraId);
+        newExtras.push({ extra_id: extraId, option_id: optionId });
+      } else {
+        // Checkbox logic
+        const existingIndex = newExtras.findIndex(
+          (e) => e.extra_id === extraId && e.option_id === optionId
+        );
+
+        if (existingIndex > -1) {
+          newExtras.splice(existingIndex, 1);
+        } else {
+          newExtras.push({ extra_id: extraId, option_id: optionId });
+        }
+      }
+
+      return { ...prev, extras: newExtras };
+    });
   };
+
+  const getTotalPrice = () => {
+    const basePrice = orderDetails.quantity * (item?.price || 0);
+    const extrasPrice = orderDetails.extras.reduce((acc, extra) => {
+      const option = item?.extrasWithOptions
+        ?.find((e) => e.extra_id === extra.extra_id)
+        ?.option.find((o) => o.id === extra.option_id);
+      return acc + (option?.price || 0) * orderDetails.quantity;
+    }, 0);
+    return basePrice + extrasPrice;
+  };
+
   const handleAddToCart = () => {
-    console.log("ss");
+    if (!item) return;
+    const _item = { id: item.id, price: item.price };
+    insertOrUpdateItem(_item, orderDetails.quantity);
+
     addToast("Item saved successfully!", "success");
+    onClose();
   };
 
   return (
@@ -84,18 +178,21 @@ export const ItemDetailModal = ({ item, onClose }) => {
                 </span>
                 <div className="relative">
                   <button
-                    onClick={handleDecreaseQuantity}
+                    onClick={() => updateQuantity("decrease")}
                     className="absolute cursor-pointer top-1/2 -translate-y-1/2 left-2 text-primary hover:scale-110 transition-transform"
                   >
                     <Minus className="size-5" />
                   </button>
                   <input
                     type="text"
+                    onChange={(event) => {
+                      updateQuantity("set", parseInt(event?.target.value));
+                    }}
                     value={orderDetails.quantity}
                     className="px-8 py-1 border-2 text-center text-primary border-primary focus:border-2 focus:outline-0 focus:ring focus:ring-primary/40 rounded-md w-28 transition-all"
                   />
                   <button
-                    onClick={handleIncreaseQuantity}
+                    onClick={() => updateQuantity("increase")}
                     className="absolute cursor-pointer top-1/2 -translate-y-1/2 right-2 text-primary hover:scale-110 transition-transform"
                   >
                     <Plus className="size-5" />
@@ -104,50 +201,14 @@ export const ItemDetailModal = ({ item, onClose }) => {
               </div>
 
               {/* Extra Options */}
-              {item.extrasWithOptions?.length > 0 && (
-                <div className="flex w-full flex-col gap-4 items-center">
-                  {item.extrasWithOptions.map((extraSection) => {
-                    return (
-                      <div
-                        key={extraSection.extra_id}
-                        className="w-full flex flex-col gap-4 items-center"
-                      >
-                        {/* Section Name */}
-                        {extraSection.is_active && (
-                          <>
-                            <div className="bg-background-primary/70 w-full rounded text-black/80 text-md px-3 py-2 font-[500] flex justify-between">
-                              <div>{extraSection.name}</div>
-                              {extraSection.is_required && (
-                                <span className="text-red-700">Required</span>
-                              )}
-                            </div>
-                            {extraSection.option.map((option) => {
-                              return (
-                                <div
-                                  key={option.id}
-                                  className="w-full px-2 text-black/80 flex justify-between"
-                                >
-                                  <span>{option.name}</span>
-                                  <div>
-                                    {option.option_has_price && (
-                                      <span>
-                                        + {option.currency} {option.price}
-                                      </span>
-                                    )}
-                                    {extraSection.extra_type_name ===
-                                      "radio" && <input type="radio" />}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
+              {item.extrasWithOptions?.map((extraSection) => (
+                <ExtraOptions
+                  key={extraSection.extra_id}
+                  extraSection={extraSection}
+                  selectedExtras={orderDetails.extras}
+                  onExtraSelect={handleExtraSelection}
+                />
+              ))}
               {/* Add To Cart */}
               <button
                 onClick={handleAddToCart}
