@@ -23,15 +23,15 @@ export const Toast = ({ message, type, period, onClose }: ToastProps) => {
   }, [onClose, period]);
 
   const typeStyles = {
-    success: "bg-green-500 border-green-600",
+    success: "bg-primary border-primary",
     error: "bg-red-500 border-red-600",
-    info: "bg-blue-500 border-blue-600",
+    info: "bg-primary border-blue-600",
     warning: "bg-yellow-500 border-yellow-600",
   };
 
   const iconStyles = {
     success: (
-      <Check className="bg-green-500 rounded-full p-[3px] stroke-white " />
+      <Check className="bg-primary rounded-full p-[3px] stroke-white " />
     ),
     error: <X className="bg-red-600 rounded-full p-[3px] stroke-white " />,
     info: (
