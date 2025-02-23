@@ -31,9 +31,18 @@ export default function ItemsList() {
 
   useEffect(() => {
     if (data?.items.data) {
-      const filtered = data.items.data.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const filtered = data.items.data
+        .filter((item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((itemResponse) => ({
+          ...itemResponse,
+          currency: data.currency,
+          restaurant: {
+            uuid: data.restaurant.uuid,
+          },
+        }));
+
       setFilteredItems(filtered);
     }
   }, [searchQuery, data]);
