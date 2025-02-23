@@ -3,9 +3,9 @@ import Navbar from "../components/Navbar";
 
 export default function MainLayout() {
   return (
-    <div>
+    <div className="bg-background-primary">
       <Navbar />
-      <div className="mt-14 container mx-auto p-4">
+      <div className="mt-[3.75rem] container mx-auto pb-0 h-[calc(100vh-3.75rem)] ">
         <Outlet />
       </div>
     </div>
