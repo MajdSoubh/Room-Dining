@@ -3,10 +3,11 @@ import CategoryCard from "../components/CategoryCard";
 import SearchBar from "../components/SearchBar";
 import { fetchCategories } from "../services/categoriesService";
 import { Info } from "../components/Info";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { BottomNav } from "../components/BottomNav";
 import { Category } from "../types/category";
+import { debounce } from "../utils/debounce";
 
 export default function Categories() {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -21,10 +22,13 @@ export default function Categories() {
     queryFn: fetchCategories,
   });
 
-  // Type the event parameter for the search input change event
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value.trim().toLowerCase());
-  };
+  const handleSearchChange = useMemo(
+    () =>
+      debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(event.target.value.trim());
+      }, 300),
+    []
+  );
 
   useEffect(() => {
     if (!isLoading && categories) {

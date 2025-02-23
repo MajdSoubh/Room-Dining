@@ -3,12 +3,13 @@ import ItemCard from "../components/ItemCard";
 import SearchBar from "../components/SearchBar";
 import { fetchCategoryItems } from "../services/categoriesService";
 import { Info } from "../components/Info";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { CartSummary } from "../components/CartSummary";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { ItemDetailModal } from "../components/modals/ItemDetailModal";
 import { Item } from "../types/item";
+import { debounce } from "../utils/debounce";
 
 export default function ItemsList() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,10 +26,13 @@ export default function ItemsList() {
     enabled: !!categoryId,
   });
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value.trim());
-  };
-
+  const handleSearchChange = useMemo(
+    () =>
+      debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(event.target.value.trim());
+      }, 300),
+    []
+  );
   useEffect(() => {
     if (data?.items.data) {
       const filtered = data.items.data
