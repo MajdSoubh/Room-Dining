@@ -1,4 +1,4 @@
-# Restaurant Ordering System
+# In-Room dining System
 
 A modern In-Room dining ordering system built with React, TypeScript, and Vite.
 
