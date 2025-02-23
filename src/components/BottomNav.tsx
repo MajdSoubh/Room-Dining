@@ -3,8 +3,8 @@ import { Search, House, Menu } from "lucide-react";
 
 export const BottomNav = () => {
   return (
-    <div className="w-full">
-      <div className="rounded-t-4xl text-white px-8 py-[0.6rem] bg-gradient-to-r from-[#00618e] to-[#0075b5] flex gap-3 items-center justify-between">
+    <div className=" w-full">
+      <div className="rounded-t-4xl text-white px-8 py-[0.7rem] bg-gradient-to-r from-[#00618e] to-[#0075b5] flex gap-3 items-center justify-between">
         <div className="flex justify-between w-full gap-2">
           {/* Menu Button */}
           <button className="cursor-pointer">
