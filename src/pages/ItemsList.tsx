@@ -52,7 +52,7 @@ export default function ItemsList() {
   const isEmptyState = !isLoading && !isError && filteredItems.length === 0;
 
   return (
-    <div className="mx-auto pt-4 flex flex-col gap-3 w-full h-full lg:w-[60rem]">
+    <div className="mx-auto justify-end pt-4 flex flex-col gap-3 w-full h-full lg:w-[60rem]">
       {/* Search */}
       <div className="px-2">
         <SearchBar
@@ -65,7 +65,7 @@ export default function ItemsList() {
       <ScrollContainer className="flex-grow px-2 w-full">
         {isLoading && (
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 w-full">
-            {Array.from({ length: 3 }).map((_, index) => (
+            {Array.from({ length: 2 }).map((_, index) => (
               <div
                 key={index}
                 className="h-40 bg-gray-200 animate-pulse rounded-3xl"

@@ -36,7 +36,7 @@ export default function Categories() {
   }, [searchQuery, categories, isLoading]);
 
   return (
-    <div className="mx-auto pt-4 flex flex-col gap-3 w-full h-full lg:w-[60rem]">
+    <div className="mx-auto pt-4  justify-end flex flex-col gap-3 w-full h-full">
       {/* Search */}
       <div className="px-2">
         <SearchBar
