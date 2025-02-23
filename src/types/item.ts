@@ -5,6 +5,7 @@ export interface Item {
   description: string;
   currency: string;
   price: number;
+  display_name: string;
   restaurant: {
     uuid: string;
   };
@@ -15,4 +16,5 @@ export interface ItemResponse {
   name: string;
   description: string;
   price: number;
+  display_name: string;
 }
